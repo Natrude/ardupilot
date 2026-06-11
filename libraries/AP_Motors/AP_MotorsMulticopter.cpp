@@ -232,7 +232,7 @@ const AP_Param::GroupInfo AP_MotorsMulticopter::var_info[] = {
     // @Param: OPTIONS
     // @DisplayName: Motor options
     // @Description: Motor options
-    // @Bitmask: 0:Voltage compensation uses raw voltage
+    // @Bitmask: 0:Voltage compensation uses raw voltage, 1:Tricopter rear motor bidirectional (PWM neutral=stopped)
     // @User: Advanced
     AP_GROUPINFO("OPTIONS", 43, AP_MotorsMulticopter, _options, 0),
 

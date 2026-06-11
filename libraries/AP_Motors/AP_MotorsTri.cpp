@@ -115,7 +115,18 @@ void AP_MotorsTri::output_to_motors()
 
     rc_write(AP_MOTORS_MOT_1, output_to_pwm(_actuator[AP_MOTORS_MOT_1]));
     rc_write(AP_MOTORS_MOT_2, output_to_pwm(_actuator[AP_MOTORS_MOT_2]));
-    rc_write(AP_MOTORS_MOT_4, output_to_pwm(_actuator[AP_MOTORS_MOT_4]));
+    if (has_option(MotorOptions::TRI_REAR_BIDIR)) {
+        // Bidirectional ESC: 1500 = stopped, pwm_max = full forward.
+        // output_to_pwm() maps 0 -> pwm_min (1000 = full reverse) which is wrong here.
+        if (_spool_state == SpoolState::SHUT_DOWN && _disarm_disable_pwm && !armed()) {
+            rc_write(AP_MOTORS_MOT_4, 0);
+        } else {
+            const int16_t pwm_neutral = (get_pwm_output_min() + get_pwm_output_max()) / 2;
+            rc_write(AP_MOTORS_MOT_4, pwm_neutral + _actuator[AP_MOTORS_MOT_4] * (get_pwm_output_max() - pwm_neutral));
+        }
+    } else {
+        rc_write(AP_MOTORS_MOT_4, output_to_pwm(_actuator[AP_MOTORS_MOT_4]));
+    }
 }
 
 // get_motor_mask - returns a bitmask of which outputs are being used for motors or servos (1 means being used)

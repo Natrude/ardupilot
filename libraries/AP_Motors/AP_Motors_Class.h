@@ -288,7 +288,8 @@ public:
 #endif
 
     enum MotorOptions : uint8_t {
-        BATT_RAW_VOLTAGE = (1 << 0U)
+        BATT_RAW_VOLTAGE  = (1 << 0U),
+        TRI_REAR_BIDIR    = (1 << 1U),  // tricopter rear motor is bidirectional; map 0 thrust to PWM neutral (1500) not min (1000)
     };
     bool has_option(MotorOptions option) { return _options.get() & uint8_t(option); }
 
