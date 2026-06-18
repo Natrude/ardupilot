@@ -108,7 +108,12 @@ void AP_MotorsTri::output_to_motors()
             // set motor output based on thrust requests
             set_actuator_with_slew(_actuator[AP_MOTORS_MOT_1], thr_lin.thrust_to_actuator(_thrust_right));
             set_actuator_with_slew(_actuator[AP_MOTORS_MOT_2], thr_lin.thrust_to_actuator(_thrust_left));
-            set_actuator_with_slew(_actuator[AP_MOTORS_MOT_4], thr_lin.thrust_to_actuator(_thrust_rear));
+            // for bidirectional rear motor, pass negative thrust directly; thrust_to_actuator expects 0..1
+            if (has_option(MotorOptions::TRI_REAR_BIDIR) && _thrust_rear < 0.0f) {
+                set_actuator_with_slew(_actuator[AP_MOTORS_MOT_4], _thrust_rear);
+            } else {
+                set_actuator_with_slew(_actuator[AP_MOTORS_MOT_4], thr_lin.thrust_to_actuator(_thrust_rear));
+            }
             rc_write_angle(AP_MOTORS_CH_TRI_YAW, degrees(_pivot_angle)*100);
             break;
     }
@@ -286,7 +291,8 @@ void AP_MotorsTri::output_armed_stabilizing()
     // test code should be run with these lines commented out as they should not do anything
     _thrust_right = constrain_float(_thrust_right, 0.0f, 1.0f);
     _thrust_left = constrain_float(_thrust_left, 0.0f, 1.0f);
-    _thrust_rear = constrain_float(_thrust_rear, 0.0f, 1.0f);
+    // allow negative rear thrust when bidirectional ESC is fitted
+    _thrust_rear = constrain_float(_thrust_rear, has_option(MotorOptions::TRI_REAR_BIDIR) ? -1.0f : 0.0f, 1.0f);
 }
 
 // output_test_seq - spin a motor at the pwm value specified
