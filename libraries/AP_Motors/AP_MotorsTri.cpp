@@ -291,8 +291,15 @@ void AP_MotorsTri::output_armed_stabilizing()
     // test code should be run with these lines commented out as they should not do anything
     _thrust_right = constrain_float(_thrust_right, 0.0f, 1.0f);
     _thrust_left = constrain_float(_thrust_left, 0.0f, 1.0f);
-    // allow negative rear thrust when bidirectional ESC is fitted
-    _thrust_rear = constrain_float(_thrust_rear, has_option(MotorOptions::TRI_REAR_BIDIR) ? -1.0f : 0.0f, 1.0f);
+    if (has_option(MotorOptions::TRI_REAR_BIDIR)) {
+        // Decouple rear motor from throttle: use it purely as a pitch actuator.
+        // The standard mixer always keeps _thrust_rear >= 0 because throttle_thrust_best_rpy
+        // is chosen to prevent any motor going below zero. By overriding here with a direct
+        // pitch signal we allow the motor to reverse when pitch correction demands it.
+        _thrust_rear = constrain_float(-rpy_scale * pitch_thrust, -1.0f, 1.0f);
+    } else {
+        _thrust_rear = constrain_float(_thrust_rear, 0.0f, 1.0f);
+    }
 }
 
 // output_test_seq - spin a motor at the pwm value specified
