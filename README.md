@@ -1,3 +1,6 @@
+# Natrude Edit:
+Enable MOT_OPTIONS = 2 in arduplane parameters to remap rear motor. This maps throttle = 0% to pwm = 1500 us.   
+
 # ArduPilot Project
 
 [![Discord](https://img.shields.io/discord/674039678562861068.svg)](https://ardupilot.org/discord)
